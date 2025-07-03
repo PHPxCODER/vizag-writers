@@ -23,7 +23,7 @@ interface ComingSoonPageProps {
 }
 
 function ComingSoonPage({
-  launchDate = new Date("2025-07-04T11:00:00+05:30"),
+  launchDate = new Date("2025-08-20T11:00:00+05:30"),
   title = "Something Amazing is Coming Soon",
   subtitle = "We're working hard to bring you something extraordinary. Get notified when we launch!",
   onNotifyMe,
@@ -96,29 +96,31 @@ function ComingSoonPage({
   const handleNotifyMe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-
+  
     setIsLoading(true);
     setError("");
-
+  
     try {
-      if (onNotifyMe) {
-        const result = await onNotifyMe(email);
-        if (result.success) {
-          setIsSubscribed(true);
-          setEmail("");
-        } else {
-          setError(result.error || "Something went wrong");
-        }
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call the API endpoint directly
+      const response = await fetch('/api/notify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
         setIsSubscribed(true);
         setEmail("");
+      } else {
+        setError(result.error || "Something went wrong");
       }
     } catch (err) {
       setError(
-        `Failed to subscribe. Please try again. ${
-          err instanceof Error ? err.message : "Unknown error"
-        }`,
+        `Failed to subscribe. Please try again.`,
       );
     } finally {
       setIsLoading(false);
@@ -537,7 +539,7 @@ async function mockNotifyMe(email: string) {
 export default function ComingSoonDemo() {
   return (
     <ComingSoonPage
-      launchDate={new Date("2025-07-04T11:00:00+05:30")}
+      launchDate={new Date("2025-08-20T11:00:00+05:30")}
       title="Vizag Writers: A New Chapter is Coming Soon!"
       subtitle="The heart of Vizag's writing community is evolving. Get ready for an even more vibrant space where every voice finds its stage, every story matters, and every writer truly belongs. Join us as we unveil our new home!"
       onNotifyMe={mockNotifyMe}
