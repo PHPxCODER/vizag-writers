@@ -1,71 +1,25 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import NumberFlow from "@number-flow/react";
-import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowRight, LoaderCircle, Clock, ExternalLink } from "lucide-react";
+import { ArrowLeft, Home, Search, ExternalLink } from "lucide-react";
 
-interface TimeLeft {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
+interface NotFoundPageProps {
+  onGoHome?: () => void;
+  onGoBack?: () => void;
+  homeUrl?: string;
 }
 
-interface ComingSoonPageProps {
-  launchDate?: Date;
-  title?: string;
-  subtitle?: string;
-  onNotifyMe?: (email: string) => Promise<{ success: boolean; error?: string }>;
-}
-
-function ComingSoonPage({
-  launchDate = new Date("2025-08-20T11:00:00+05:30"),
-  title = "Something Amazing is Coming Soon",
-  subtitle = "We're working hard to bring you something extraordinary. Get notified when we launch!",
-  onNotifyMe,
-}: ComingSoonPageProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [error, setError] = useState("");
-
+function NotFoundPage({
+  onGoHome,
+  onGoBack,
+  homeUrl = "/",
+}: NotFoundPageProps) {
   // Store particle positions in state, initialized as an empty array
   const [particlePositions, setParticlePositions] = useState<
     { x: number; y: number }[]
   >([]);
-
-  // Effect to calculate and update time left every second
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const difference = launchDate.getTime() - new Date().getTime();
-
-      if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-        });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
-  }, [launchDate]);
 
   // Effect for particle generation - only run on client after initial render
   useEffect(() => {
@@ -93,37 +47,19 @@ function ComingSoonPage({
     return () => clearInterval(particleInterval);
   }, []); // Empty dependency array ensures this runs only once on mount
 
-  const handleNotifyMe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-  
-    setIsLoading(true);
-    setError("");
-  
-    try {
-      // Call the API endpoint directly
-      const response = await fetch('/api/notify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setIsSubscribed(true);
-        setEmail("");
-      } else {
-        setError(result.error || "Something went wrong");
-      }
-    } catch (err) {
-      setError(
-        `Failed to subscribe. Please try again.`,
-      );
-    } finally {
-      setIsLoading(false);
+  const handleGoHome = () => {
+    if (onGoHome) {
+      onGoHome();
+    } else {
+      window.location.href = homeUrl;
+    }
+  };
+
+  const handleGoBack = () => {
+    if (onGoBack) {
+      onGoBack();
+    } else {
+      window.history.back();
     }
   };
 
@@ -319,8 +255,23 @@ function ComingSoonPage({
           transition={{ duration: 0.8 }}
           className="text-center max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto w-full"
         >
+          {/* 404 Number */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="text-8xl sm:text-9xl md:text-[12rem] lg:text-[14rem] font-bold mb-4 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent leading-tight"
+            style={{
+              backgroundSize: "200% 200%",
+              animation: "gradient-shift 3s ease-in-out infinite",
+              lineHeight: "0.8",
+            }}
+          >
+            404
+          </motion.div>
+
           <motion.h1
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-dancing-script font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent leading-tight px-4"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent leading-tight px-4"
             style={{
               backgroundSize: "200% 200%",
               animation: "gradient-shift 3s ease-in-out infinite",
@@ -329,170 +280,61 @@ function ComingSoonPage({
               paddingBottom: "0.5rem",
             }}
           >
-            {title}
+            Page Not Found
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
             className="text-sm sm:text-base md:text-lg text-muted-foreground mb-8 md:mb-12 max-w-xl mx-auto font-inter px-4 leading-relaxed"
           >
-            {subtitle}
+            Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or you entered the wrong URL.
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 md:mb-12 max-w-lg md:max-w-2xl mx-auto px-4"
-          >
-            {[
-              { label: "Days", value: timeLeft.days },
-              { label: "Hours", value: timeLeft.hours },
-              { label: "Minutes", value: timeLeft.minutes },
-              { label: "Seconds", value: timeLeft.seconds },
-            ].map((item) => (
-              <motion.div
-                key={item.label}
-                className="bg-card border border-border rounded-lg p-3 md:p-4 shadow-lg backdrop-blur-sm"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <div className="text-xl md:text-2xl lg:text-3xl font-bold text-primary mb-1 font-inter">
-                  <NumberFlow
-                    value={item.value}
-                    format={{ minimumIntegerDigits: 2 }}
-                    className="tabular-nums"
-                    transformTiming={{
-                      duration: 800,
-                      easing: "ease-out",
-                    }}
-                  />
-                </div>
-                <div className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-inter">
-                  {item.label}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="max-w-sm sm:max-w-md mx-auto px-4"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto px-4"
           >
-            <AnimatePresence mode="wait">
-              {!isSubscribed ? (
-                <motion.form
-                  key="form"
-                  onSubmit={handleNotifyMe}
-                  className="space-y-4"
-                  initial={{ opacity: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="flex-1 bg-background/50 backdrop-blur-sm border-border/50 focus:border-primary font-inter"
-                      required
-                      disabled={isLoading}
-                    />
-                    <Button
-                      type="submit"
-                      disabled={isLoading || !email}
-                      className="group relative overflow-hidden font-inter"
-                    >
-                      <span
-                        className={cn(
-                          "inline-flex items-center transition-all duration-200",
-                          isLoading && "text-transparent",
-                        )}
-                      >
-                        Notify Me
-                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </span>
-                      {isLoading && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <LoaderCircle className="h-4 w-4 animate-spin" />
-                        </div>
-                      )}
-                    </Button>
-                  </div>
-                  {error && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-destructive text-sm font-inter"
-                    >
-                      {error}
-                    </motion.p>
-                  )}
-                </motion.form>
-              ) : (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center p-6 bg-card border border-border rounded-lg backdrop-blur-sm"
-                >
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                    className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
-                  >
-                    <svg
-                      className="w-8 h-8 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                  </motion.div>
-                  <h3 className="text-lg font-semibold mb-2 font-inter">You&apos;re all set!</h3>
-                  <p className="text-muted-foreground font-inter">
-                    We&apos;ll notify you as soon as we launch.
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <Button
+              onClick={handleGoHome}
+              className="group relative overflow-hidden font-inter w-full sm:w-auto"
+            >
+              <span className="inline-flex items-center transition-all duration-200">
+                <Home className="mr-2 h-4 w-4" />
+                Go Home
+              </span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={handleGoBack}
+              className="group relative overflow-hidden font-inter w-full sm:w-auto bg-background/50 backdrop-blur-sm border-border/50 hover:bg-background/90"
+            >
+              <span className="inline-flex items-center transition-all duration-200">
+                <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                Go Back
+              </span>
+            </Button>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="mt-8 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-2 text-muted-foreground font-inter px-4"
+            className="mt-8 md:mt-12 flex items-center justify-center gap-2 text-muted-foreground font-inter px-4"
           >
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span className="text-xs sm:text-sm text-center">
-                Launching{" "}
-                {launchDate.toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}{" "}
-                at 11:00 AM IST
-              </span>
+            <div className="flex items-center gap-2 text-xs sm:text-sm">
+              <Search className="h-4 w-4" />
+              <span>Lost? Try searching from our homepage</span>
             </div>
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Powered by footer - positioned at bottom */}
+      {/* Crafted with love footer - positioned at bottom */}
       <div className="absolute bottom-4 left-0 right-0 z-10">
         <motion.div
           initial={{ opacity: 0 }}
@@ -500,14 +342,13 @@ function ComingSoonPage({
           transition={{ duration: 0.8, delay: 1.0 }}
           className="text-center text-xs text-muted-foreground/70 font-inter"
         >
-          Crafted with {" "}
+          Crafted with{" "}
           <span
             className="inline-block text-red-500"
             style={{
               animation: "smoothPulse 1.5s ease-in-out infinite"
             }}
           >❤</span>
-
           {" "}by{" "}
           <a
             href="https://rdpdatacenter.in"
@@ -552,26 +393,26 @@ function ComingSoonPage({
             transform: scale(1.1);
           }
         }
+
+        @keyframes smoothPulse {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.1);
+          }
+        }
       `}</style>
     </div>
   );
 }
 
-async function mockNotifyMe(email: string) {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  if (email.includes("error")) {
-    return { success: false, error: "Something went wrong! Please try another email." };
-  }
-  return { success: true };
-}
-
-export default function ComingSoonDemo() {
+export default function NotFoundDemo() {
   return (
-    <ComingSoonPage
-      launchDate={new Date("2025-08-20T11:00:00+05:30")}
-      title="Vizag Writers: A New Chapter is Coming Soon!"
-      subtitle="The heart of Vizag's writing community is evolving. Get ready for an even more vibrant space where every voice finds its stage, every story matters, and every writer truly belongs. Join us as we unveil our new home!"
-      onNotifyMe={mockNotifyMe}
+    <NotFoundPage
+      homeUrl="/"
     />
   );
 }
