@@ -1,6 +1,7 @@
-import React from 'react'
-import { Metadata } from 'next'
-import NotFoundDemo from '@/components/404Page'
+import React from "react";
+import { ComingSoonBackground } from "@/components/coming-soon/ComingSoonBackground"; // Import the background
+import { NotFoundContent } from "@/components/404Page";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: 'Page Not Found - Vizag Writers',
@@ -27,10 +28,25 @@ export const metadata: Metadata = {
     },
     }
 
-function NotFound() {
-  return (
-    <NotFoundDemo />
-  )
+interface NotFoundPageProps {
+  onGoHome?: () => void;
+  onGoBack?: () => void;
+  homeUrl?: string;
 }
 
-export default NotFound
+export default function NotFoundPage({
+  onGoHome,
+  onGoBack,
+  homeUrl = "/",
+}: NotFoundPageProps) {
+  return (
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+      <ComingSoonBackground /> {/* Reuse the background component */}
+      <NotFoundContent
+        onGoHome={onGoHome}
+        onGoBack={onGoBack}
+        homeUrl={homeUrl}
+      />
+    </div>
+  );
+}
