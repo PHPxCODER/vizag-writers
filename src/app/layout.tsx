@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next"
 import { Inter, Dancing_Script, Playfair_Display, Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css";
@@ -163,6 +164,7 @@ export default function RootLayout({
           >
             {children}
           </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
