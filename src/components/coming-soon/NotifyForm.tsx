@@ -114,7 +114,7 @@ export function NotifyForm() { // No props for now, as it handles its own API ca
             key="success"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center p-6 bg-card border border-border rounded-lg backdrop-blur-sm"
+            className="text-center p-6 bg-card/30 border border-border/50 rounded-xl backdrop-blur-sm shadow-lg"
           >
             <motion.div
               initial={{ scale: 0 }}

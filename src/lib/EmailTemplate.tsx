@@ -14,6 +14,7 @@ import {
   Button,
   Hr,
   Font,
+  Img
 } from '@react-email/components'
 
 interface WelcomeEmailProps {
@@ -86,33 +87,29 @@ export default function WelcomeEmailTemplate({
           }}>
             
             {/* Success Icon and Title */}
-            <Section style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <Section style={{ textAlign: "center", marginBottom: "32px" }}>
               <div style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                backgroundColor: '#10b981',
-                margin: '0 auto 24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                backgroundColor: "#10b981",
+                margin: "0 auto 24px",
+                fontSize: "40px",
+                color: "#ffffff",
+                fontWeight: "bold",
+                lineHeight: "80px",
+                textAlign: "center",
+                display: "block"
               }}>
-                <Text style={{
-                  fontSize: '40px',
-                  color: '#ffffff',
-                  margin: '0',
-                  lineHeight: '1'
-                }}>
-                  ✓
-                </Text>
+                ✓
               </div>
-              
+
               <Heading style={{
-                fontSize: '28px',
-                fontWeight: '600',
-                color: '#111827',
-                margin: '0',
-                lineHeight: '1.2'
+                fontSize: "28px",
+                fontWeight: "600",
+                color: "#111827",
+                margin: "0",
+                lineHeight: "1.2"
               }}>
                 You're All Set!
               </Heading>
